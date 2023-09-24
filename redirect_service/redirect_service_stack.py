@@ -1,11 +1,7 @@
 """The module containing all the resources of the redirect service."""
 
 # Related third party imports
-from aws_cdk import (
-    # Duration,
-    Stack,
-    # aws_sqs as sqs,
-)
+from aws_cdk import Stack
 from constructs import Construct
 
 # Local application / library specific imports
