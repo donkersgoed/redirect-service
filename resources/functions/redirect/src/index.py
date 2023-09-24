@@ -1,5 +1,6 @@
 # Standard library imports
 import os
+from urllib.parse import urlencode
 
 # Local application / library specific imports
 from .models.request import ApiGatewayRequest
@@ -19,7 +20,7 @@ def event_handler(event, _context):
 
     # Decide which domain to retrieve a redirect for. If an alias is found, use it.
     # If no alias is found, use the domain in the original request.
-    domain = alias.alias_domain if alias else request.domain
+    domain = alias.target_domain if alias else request.domain
 
     # Retrieve the redirect location for the domain and path in the request.
     redirect_location = redirect_controller.get_redirect_location(
@@ -33,8 +34,12 @@ def event_handler(event, _context):
     if not redirect_location:
         return {"statusCode": 404, "headers": base_headers}
 
-    # Otherwise, return a 301 redirect to the location retreived from DynamoDB.
-    # TODO: add query parameters to the redirect location.
+    # A redirect location is found, so we add any query parameters
+    # from the original request to the redirect location.
+    if request.query_params:
+        redirect_location += "?" + urlencode(request.query_params)
+
+    # Return a 301 redirect to the location retreived from DynamoDB.
     return {
         "statusCode": 301,
         "headers": base_headers | {"Location": redirect_location},

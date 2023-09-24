@@ -1,38 +1,32 @@
 class TestRequest:
     @staticmethod
-    def test_get_model_exact():
+    def test_alias_model():
         from resources.functions.redirect.src.models.database import (
-            RedirectOption,
-            RedirectType,
+            Alias,
         )
 
         item = {
-            "sk": "/",
-            "pk": "Redirect#j3qfzmnyjl.execute-api.eu-west-1.amazonaws.com",
-            "target": "https://example.com",
-            "type": "EXACT",
+            "pk": "DomainAlias#j3qfzmnyjl.execute-api.eu-west-1.amazonaws.com",
+            "sk": "DomainAlias#j3qfzmnyjl.execute-api.eu-west-1.amazonaws.com",
+            "target_domain": "example.com",
         }
 
-        model = RedirectOption.from_ddb_item(item)
-        assert model == RedirectOption(
-            domain="j3qfzmnyjl.execute-api.eu-west-1.amazonaws.com",
-            path="/",
-            target="https://example.com",
-            type=RedirectType.EXACT,
+        model = Alias.from_ddb_item(item)
+        assert model == Alias(
+            source_domain="j3qfzmnyjl.execute-api.eu-west-1.amazonaws.com",
+            target_domain="example.com",
         )
 
     @staticmethod
-    def test_get_model_begins_with():
+    def test_get_redirect_model():
         from resources.functions.redirect.src.models.database import (
             RedirectOption,
-            RedirectType,
         )
 
         item = {
-            "sk": "/",
             "pk": "Redirect#j3qfzmnyjl.execute-api.eu-west-1.amazonaws.com",
+            "sk": "/",
             "target": "https://example.com",
-            "type": "BEGINS_WITH",
         }
 
         model = RedirectOption.from_ddb_item(item)
@@ -40,5 +34,23 @@ class TestRequest:
             domain="j3qfzmnyjl.execute-api.eu-west-1.amazonaws.com",
             path="/",
             target="https://example.com",
-            type=RedirectType.BEGINS_WITH,
+        )
+
+    @staticmethod
+    def test_get_redirect_fallback_model():
+        from resources.functions.redirect.src.models.database import (
+            RedirectFallbackOption,
+        )
+
+        item = {
+            "pk": "RedirectFallback#j3qfzmnyjl.execute-api.eu-west-1.amazonaws.com",
+            "sk": "/",
+            "target": "https://example.com",
+        }
+
+        model = RedirectFallbackOption.from_ddb_item(item)
+        assert model == RedirectFallbackOption(
+            domain="j3qfzmnyjl.execute-api.eu-west-1.amazonaws.com",
+            path="/",
+            target="https://example.com",
         )

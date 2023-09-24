@@ -8,22 +8,16 @@ from . import BaseDataclass
 
 @dataclass
 class Alias(BaseDataclass):
-    pk: str
-    sk: str
-    alias_domain: str
+    source_domain: str
+    target_domain: str
 
     @classmethod
     def from_ddb_item(cls, item: dict) -> "Alias":
+        pk: str = item["pk"]
         return cls(
-            pk=item["pk"],
-            sk=item["sk"],
-            alias_domain=item["alias"],
+            source_domain=pk.lstrip("DomainAlias#"),
+            target_domain=item["target_domain"],
         )
-
-
-class RedirectType(str, Enum):
-    EXACT = "EXACT"
-    BEGINS_WITH = "BEGINS_WITH"
 
 
 @dataclass
@@ -31,7 +25,6 @@ class RedirectOption(BaseDataclass):
     domain: str
     path: str
     target: str
-    type: RedirectType
 
     @classmethod
     def from_ddb_item(cls, item: dict) -> "RedirectOption":
@@ -40,5 +33,20 @@ class RedirectOption(BaseDataclass):
             domain=pk.lstrip("Redirect#"),
             path=item["sk"],
             target=item["target"],
-            type=RedirectType(item["type"]),
+        )
+
+
+@dataclass
+class RedirectFallbackOption(BaseDataclass):
+    domain: str
+    path: str
+    target: str
+
+    @classmethod
+    def from_ddb_item(cls, item: dict) -> "RedirectOption":
+        pk: str = item["pk"]
+        return cls(
+            domain=pk.lstrip("RedirectFallback#"),
+            path=item["sk"],
+            target=item["target"],
         )

@@ -8,7 +8,7 @@ from boto3.dynamodb.conditions import Key
 
 # Local application / library specific imports
 from ..models.request import ApiGatewayRequest
-from ..models.database import Alias, RedirectOption, RedirectType
+from ..models.database import Alias, RedirectOption, RedirectFallbackOption
 
 
 class RedirectController:
@@ -23,34 +23,47 @@ class RedirectController:
         response = self._ddb_table.query(
             KeyConditionExpression=Key("pk").eq(key) & Key("sk").eq(key),
         )
-        print(response)
+
         if response["Count"] == 0:
             return None
+
         return Alias.from_ddb_item(response["Items"][0])
 
     def get_redirect_location(self, domain: str, request_path: str) -> Optional[str]:
-        """Get the best redirect location from the database, or None if no options are found."""
-        pk = f"Redirect#{domain}"
-        sk = request_path
+        """
+        Get the best redirect location from the database, or None if no options are found.
 
-        response = self._ddb_table.query(
-            KeyConditionExpression=Key("pk").eq(pk) & Key("sk").begins_with(sk),
-        )
+        This function first checks for exact domain and path matches, and returns them if they are found.
+        If none are found, it will look for fallback redirects, where the path in the database partially
+        matches the request. If any are found, the best match is returned. If none are found,
+        None is returned.
+        """
+
+        ddb_response = self._get_redirect_from_ddb(domain, request_path)
+
+        if ddb_response["Count"] == 1:
+            return ddb_response["Items"][0]["target"]
+
+        if ddb_response["Count"] == 0:
+            return self._get_fallback_redirect_location(domain, request_path)
+
+    def _get_fallback_redirect_location(
+        self, domain: str, request_path: str
+    ) -> Optional[str]:
+        """Return the best fallback redirect location for the given request path, or None."""
+        ddb_response = self._get_redirect_fallbacks_from_ddb(domain=domain)
 
         # Reshape the DDB responses into models
-        redirects: List[RedirectOption] = []
-        for item in response["Items"]:
-            redirects.append(RedirectOption.from_ddb_item(item))
+        redirect_options: List[RedirectFallbackOption] = []
+        for item in ddb_response["Items"]:
+            redirect_options.append(RedirectFallbackOption.from_ddb_item(item))
 
         # Loop over all redirects, return an exact match if it is found,
         # or track which "BEGINS_WITH" redirect option has the most matching characters.
         best_match = None
         max_matching_characters = 0
-        for redirect in redirects:
-            if self._exact_match_or_none(request_path, redirect):
-                return redirect.target
-
-            if redirect.type == RedirectType.BEGINS_WITH:
+        for redirect in redirect_options:
+            if redirect.path in request_path:
                 matching_characters = len(redirect.path)
                 if matching_characters > max_matching_characters:
                     best_match = redirect
@@ -58,16 +71,25 @@ class RedirectController:
 
         return best_match.target if best_match else None
 
-    def _exact_match_or_none(
-        self, request_path: str, redirect_option: RedirectOption
-    ) -> Optional[RedirectOption]:
-        """Check if the match type is exact and return the redirect option if the request path exactly matches."""
-        if redirect_option.type == RedirectType.EXACT:
-            # The redirect option requires an exact match.
-            # Return the RedirectOption if the match is successful.
-            # Otherwise, return None.
-            return (
-                redirect_option
-                if redirect_option.path.lower() == request_path.lower()
-                else None
-            )
+    def _get_redirect_from_ddb(self, domain: str, request_path: str):
+        """
+        Extracted DDB redirect request for easy mocking.
+
+        Queries the database for all exactly matching redirect locations
+        for the requested path.
+        """
+        response = self._ddb_table.query(
+            KeyConditionExpression=Key("pk").eq(f"Redirect#{domain}")
+            & Key("sk").eq(request_path),
+        )
+
+        if response["Count"] > 1 or len(response["Items"]) > 1:
+            raise Exception("Multiple redirect options found for request path")
+
+        return response
+
+    def _get_redirect_fallbacks_from_ddb(self, domain: str):
+        """Extracted DDB redirect fallbacks request for easy mocking."""
+        return self._ddb_table.query(
+            KeyConditionExpression=Key("pk").eq(f"RedirectFallback#{domain}"),
+        )
