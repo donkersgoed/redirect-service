@@ -1,3 +1,4 @@
+# Related third party imports
 from aws_cdk import (
     # Duration,
     Stack,
@@ -5,15 +6,21 @@ from aws_cdk import (
 )
 from constructs import Construct
 
-class RedirectServiceStack(Stack):
+# Local application / library specific imports
+from redirect_service.constructs.proxy import Proxy
+from redirect_service.constructs.process import Process
+from redirect_service.constructs.storage import Storage
 
+
+class RedirectServiceStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # The code that defines your stack goes here
-
-        # example resource
-        # queue = sqs.Queue(
-        #     self, "RedirectServiceQueue",
-        #     visibility_timeout=Duration.seconds(300),
-        # )
+        storage = Storage(scope=self, construct_id="Storage")
+        proxy = Proxy(scope=self, construct_id="Proxy")
+        Process(
+            scope=self,
+            construct_id="Process",
+            proxy_api=proxy.rest_api,
+            ddb_table=storage.ddb_table,
+        )
