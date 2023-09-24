@@ -61,17 +61,26 @@ class RedirectController:
         for item in ddb_response["Items"]:
             redirect_options.append(RedirectFallbackOption.from_ddb_item(item))
 
-        # Loop over all redirects, return an exact match if it is found,
-        # or track which "BEGINS_WITH" redirect option has the most matching characters.
+        # Loop over all redirects and return the best matching
+        # redirect fallback option for the requested path
         best_match = None
         max_matching_characters = 0
         for redirect in redirect_options:
+            # Check if the path for the redirect option has any overlap
+            # with the requested path. If so, it is redirect candidate.
             if redirect.path in request_path:
+                # Get the number of matching characters between the path
+                # for the redirect option and the requested path.
                 matching_characters = len(redirect.path)
+
+                # If the number of matching characters is greater than
+                # the current best match, update the best match and the
+                # number of matching characters.
                 if matching_characters > max_matching_characters:
                     best_match = redirect
                     max_matching_characters = matching_characters
 
+        # Return the best matching redirect fallback option, or None if none are found
         return best_match.target if best_match else None
 
     def _get_redirect_from_ddb(self, domain: str, request_path: str):
