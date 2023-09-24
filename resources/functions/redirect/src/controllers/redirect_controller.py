@@ -1,3 +1,5 @@
+"""The module for the RedirectController class, responsible for requests destinations."""
+
 # Standard library imports
 from typing import Optional, List
 
@@ -8,10 +10,12 @@ from boto3.dynamodb.conditions import Key
 
 # Local application / library specific imports
 from ..models.request import ApiGatewayRequest
-from ..models.database import Alias, RedirectOption, RedirectFallbackOption
+from ..models.database import Alias, RedirectFallbackOption
 
 
 class RedirectController:
+    """The RedirectController class handles fetching the correct destination for requests."""
+
     def __init__(self, ddb_table_name: str) -> None:
         """Construct a new RedirectController."""
         dynamodb = boto3.resource("dynamodb")
@@ -33,10 +37,10 @@ class RedirectController:
         """
         Get the best redirect location from the database, or None if no options are found.
 
-        This function first checks for exact domain and path matches, and returns them if they are found.
-        If none are found, it will look for fallback redirects, where the path in the database partially
-        matches the request. If any are found, the best match is returned. If none are found,
-        None is returned.
+        This function first checks for exact domain and path matches, and returns them if they
+        are found. If none are found, it will look for fallback redirects, where the path in the
+        database partially matches the request. If any are found, the best match is returned. If
+        none are found, None is returned.
         """
 
         ddb_response = self._get_redirect_from_ddb(domain, request_path)
@@ -44,8 +48,7 @@ class RedirectController:
         if ddb_response["Count"] == 1:
             return ddb_response["Items"][0]["target"]
 
-        if ddb_response["Count"] == 0:
-            return self._get_fallback_redirect_location(domain, request_path)
+        return self._get_fallback_redirect_location(domain, request_path)
 
     def _get_fallback_redirect_location(
         self, domain: str, request_path: str
@@ -84,7 +87,7 @@ class RedirectController:
         )
 
         if response["Count"] > 1 or len(response["Items"]) > 1:
-            raise Exception("Multiple redirect options found for request path")
+            raise RuntimeError("Multiple redirect options found for request path")
 
         return response
 

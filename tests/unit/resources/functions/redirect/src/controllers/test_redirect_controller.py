@@ -1,3 +1,7 @@
+"""Test module for the redirect controller."""
+
+# pylint: disable=import-outside-toplevel, protected-access
+
 # Standard library imports
 from unittest.mock import MagicMock
 
@@ -7,6 +11,8 @@ from resources.functions.redirect.src.models.database import Alias
 
 
 class TestRedirectController:
+    """Testclass for the redirect controller."""
+
     @staticmethod
     def test_get_alias_not_found() -> None:
         """Test that get_alias returns None when no alias exists in the database."""
@@ -80,7 +86,7 @@ class TestRedirectController:
 
     @staticmethod
     def test_get_redirect_location_exact_match_found() -> None:
-        """Test that get_redirect_location returns a redirect location when an exact match is found."""
+        """Test that get_redirect_location returns a location when an exact match is found."""
         # 1. ARRANGE
         from resources.functions.redirect.src.controllers.redirect_controller import (
             RedirectController,
@@ -114,7 +120,7 @@ class TestRedirectController:
 
     @staticmethod
     def test_get_redirect_location_no_fallback_location() -> None:
-        """."""
+        """Verify that get_redirect_location() returns None when no matches are found."""
         # 1. ARRANGE
         from resources.functions.redirect.src.controllers.redirect_controller import (
             RedirectController,
@@ -149,11 +155,11 @@ class TestRedirectController:
         )
 
         # 3. ASSERT
-        assert response == None
+        assert response is None
 
     @staticmethod
     def test_get_redirect_location_one_fallback_location() -> None:
-        """."""
+        """Verify that get_redirect_location() returns a fallback location when it exists."""
         # 1. ARRANGE
         from resources.functions.redirect.src.controllers.redirect_controller import (
             RedirectController,
@@ -198,7 +204,7 @@ class TestRedirectController:
 
     @staticmethod
     def test_get_redirect_location_multiple_fallback_locations() -> None:
-        """."""
+        """Verify that get_redirect_location() returns the best fallback location."""
         # 1. ARRANGE
         from resources.functions.redirect.src.controllers.redirect_controller import (
             RedirectController,

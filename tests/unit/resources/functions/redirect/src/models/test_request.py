@@ -1,6 +1,14 @@
+"""Test module for request models."""
+
+# pylint: disable=import-outside-toplevel
+
+
 class TestRequest:
+    """Test class for the request models."""
+
     @staticmethod
     def test_get_model_no_path_no_params():
+        """Verify that a request with a simple path and no query params is stored correctly."""
         from resources.functions.redirect.src.models.request import ApiGatewayRequest
 
         request = {
@@ -47,6 +55,7 @@ class TestRequest:
 
     @staticmethod
     def test_get_model_path_no_params():
+        """Verify that a request with a path but no query parameters is stored correctly."""
         from resources.functions.redirect.src.models.request import ApiGatewayRequest
 
         request = {
@@ -95,6 +104,7 @@ class TestRequest:
 
     @staticmethod
     def test_get_model_path_params():
+        """Verify that a request with a complex path and query parameters is stored correctly."""
         from resources.functions.redirect.src.models.request import ApiGatewayRequest
 
         request = {

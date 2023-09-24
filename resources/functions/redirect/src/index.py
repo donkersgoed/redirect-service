@@ -1,3 +1,5 @@
+"""The redirect Lambda Function, responsible for redirecting requests."""
+
 # Standard library imports
 import os
 from urllib.parse import urlencode
@@ -12,6 +14,12 @@ redirect_controller = RedirectController(ddb_table_name=DDB_TABLE_NAME)
 
 
 def event_handler(event, _context):
+    """
+    Handle an incoming request from API Gateway.
+
+    The function returns a 404 if no redirect option is found, or a 301
+    with a 'Location' header if it is.
+    """
     # Reshape the request into a model
     request = ApiGatewayRequest.from_lambda_event(event)
 

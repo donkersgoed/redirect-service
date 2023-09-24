@@ -1,3 +1,5 @@
+"""The proxy module, responsible for all persistent storage."""
+
 from aws_cdk import (
     RemovalPolicy,
     aws_dynamodb as dynamodb,
@@ -6,7 +8,10 @@ from constructs import Construct
 
 
 class Storage(Construct):
+    """The proxy class, responsible for all persistent storage."""
+
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+        """Construct a new Storage class."""
         super().__init__(scope, construct_id, **kwargs)
 
         self.ddb_table = dynamodb.Table(

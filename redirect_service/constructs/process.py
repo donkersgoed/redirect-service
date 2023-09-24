@@ -1,3 +1,5 @@
+"""The process module, responsible for the components processing a request."""
+
 from aws_cdk import (
     Duration,
     aws_apigateway as apigateway,
@@ -8,6 +10,8 @@ from constructs import Construct
 
 
 class Process(Construct):
+    """The process class, responsible for the components processing a request."""
+
     def __init__(
         self,
         scope: Construct,
@@ -16,6 +20,7 @@ class Process(Construct):
         ddb_table: dynamodb.Table,
         **kwargs
     ) -> None:
+        """Construct a new Process class."""
         super().__init__(scope, construct_id, **kwargs)
 
         redirect_handler = lambda_.Function(

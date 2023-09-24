@@ -1,6 +1,14 @@
-class TestRequest:
+"""Test module for database models."""
+
+# pylint: disable=import-outside-toplevel
+
+
+class TestDatabase:
+    """Test class for request models."""
+
     @staticmethod
     def test_alias_model():
+        """Verify that the Alias model is correctly created from a DDB item."""
         from resources.functions.redirect.src.models.database import (
             Alias,
         )
@@ -19,6 +27,7 @@ class TestRequest:
 
     @staticmethod
     def test_get_redirect_model():
+        """Verify that the RedirectOption model is correctly created from a DDB item."""
         from resources.functions.redirect.src.models.database import (
             RedirectOption,
         )
@@ -38,6 +47,7 @@ class TestRequest:
 
     @staticmethod
     def test_get_redirect_fallback_model():
+        """Verify that the RedirectFallbackOption model is correctly created from a DDB item."""
         from resources.functions.redirect.src.models.database import (
             RedirectFallbackOption,
         )
