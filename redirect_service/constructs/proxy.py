@@ -32,7 +32,9 @@ class Proxy(Construct):
         # this API should respond to.
         api_mappings = [
             ApiMapping(
-                domain_names=["w.l15d.com"],
+                domain_names=[
+                    "w.l15d.com",
+                ],
                 hosted_zone_name="w.l15d.com",
                 hosted_zone_id="Z05942751EXJO1M3FVCXE",
             ),
@@ -43,6 +45,15 @@ class Proxy(Construct):
                 ],
                 hosted_zone_name="bitesizedserverless.com",
                 hosted_zone_id="Z00360591I6ENSTBA2JEX",
+            ),
+            ApiMapping(
+                domain_names=[
+                    "auth.awsnews.l15d.com",
+                    "api.awsnews.l15d.com",
+                    "awsnews.l15d.com",
+                ],
+                hosted_zone_name="awsnews.l15d.com",
+                hosted_zone_id="Z03847202HF51I5F9T4A2",
             ),
         ]
 
